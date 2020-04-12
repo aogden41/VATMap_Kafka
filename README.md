@@ -1,2 +1,2 @@
 # VATMap_Kafka
-Data handler/processer vie Kafka for the official VATSIM Map
+WebSocket software that reads from VATSIM's Kafka feed and returns a GeoJson representation of a pilot position.
