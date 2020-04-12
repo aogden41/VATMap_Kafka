@@ -17,17 +17,17 @@ namespace VATMap_Kafka
         /// <summary>
         /// VATSIM Kafka URL
         /// </summary>
-        private const string KAFKA_URL = "kafka-datafeed.vatsim.net:9092";
+        private const string KAFKA_URL = "";
 
         /// <summary>
         /// Kafka Username
         /// </summary>
-        private const string USERNAME = "datafeed-reader";
+        private const string USERNAME = "";
 
         /// <summary>
         /// Kafka password
         /// </summary>
-        private const string PASSWORD = "datafeed-reader";
+        private const string PASSWORD = "";
 
         /// <summary>
         /// Creates a new consumer object
