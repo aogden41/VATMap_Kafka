@@ -21,7 +21,7 @@ namespace VATMap_Kafka
         /// Client altitude
         /// </summary>
         [JsonProperty]
-        internal int Altitude { get; set; }
+        internal double Altitude { get; set; }
 
         /// <summary>
         /// GeoJson Position
@@ -36,7 +36,7 @@ namespace VATMap_Kafka
         /// <param name="callsign">Callsign of client</param>
         /// <param name="altitude">Altitude of client</param>
         /// <param name="jsonPoint">GeoJson point of client</param>
-        internal PilotPosition(string callsign, int altitude, Point jsonPoint)
+        internal PilotPosition(string callsign, double altitude, Point jsonPoint)
         {
             this.Callsign = callsign;
             this.Altitude = altitude;

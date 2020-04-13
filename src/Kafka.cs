@@ -93,18 +93,19 @@ namespace VATMap_Kafka
                             // Cast coordinates to doubles
                             double lat = (double)messageRaw["data"]["latitude"];
                             double lon = (double)messageRaw["data"]["longitude"];
+                            double altitudeSI = (int)messageRaw["data"]["altitude"] / 3.2808;
 
                             // Define new GeoJson point
-                            Point geoPoint = new Point(new Position(lat, lon));
+                            Point geoPoint = new Point(new Position(lat, lon, altitudeSI));
 
                             // Built PilotPosition object
                             PilotPosition position = new PilotPosition(
                                 (string)messageRaw["data"]["callsign"],
-                                (int)messageRaw["data"]["altitude"],
+                                altitudeSI, // metres
                                 geoPoint);
 
                             // *Sigh*
-                            DefaultContractResolver thisWillMakeAidanHappy = new DefaultContractResolver
+                            DefaultContractResolver camelCase = new DefaultContractResolver
                             {
                                 NamingStrategy = new SnakeCaseNamingStrategy()
                             };
@@ -112,7 +113,7 @@ namespace VATMap_Kafka
                             // Serialise the pilot position
                             string jsonPosition = JsonConvert.SerializeObject(position, new JsonSerializerSettings
                             {
-                                ContractResolver = thisWillMakeAidanHappy
+                                ContractResolver = camelCase
                             });
 
                             // Write to console
