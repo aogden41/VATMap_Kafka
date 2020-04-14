@@ -6,33 +6,41 @@ using System.Threading;
 using GeoJSON.Net.Geometry;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Net.Sockets;
+using System.Net;
+using System.Text;
 
 namespace VATMap_Kafka
 {
     /// <summary>
     /// Kafka object. Handles consumption
     /// </summary>
-    internal class Kafka
+    internal class Server
     {
         /// <summary>
         /// VATSIM Kafka URL
         /// </summary>
-        private const string KAFKA_URL = "";
+        private const string KAFKA_URL = "kafka-datafeed.vatsim.net:9092";
 
         /// <summary>
         /// Kafka Username
         /// </summary>
-        private const string USERNAME = "";
+        private const string USERNAME = "datafeed-reader";
 
         /// <summary>
         /// Kafka password
         /// </summary>
-        private const string PASSWORD = "";
+        private const string PASSWORD = "datafeed-reader";
+
+        /// <summary>
+        /// UDP port
+        /// </summary>
+        private const int WEBSOCK_PORT = 45000;
 
         /// <summary>
         /// Creates a new consumer object
         /// </summary>
-        internal IConsumer<Ignore, string> Consumer
+        internal IConsumer<Ignore, string> KafkaConsumer
         {
             get
             {
@@ -40,14 +48,15 @@ namespace VATMap_Kafka
                 ConsumerConfig config = new ConsumerConfig
                 {
                     BootstrapServers = KAFKA_URL,
-                    GroupId = "vatmap_consumer",
+                    GroupId = Guid.NewGuid().ToString(),
                     SecurityProtocol = SecurityProtocol.SaslPlaintext,
                     SaslMechanism = SaslMechanism.Plain,
                     SaslUsername = USERNAME,
                     SaslPassword = PASSWORD,
-                    AutoOffsetReset = AutoOffsetReset.Earliest
+                    AutoOffsetReset = AutoOffsetReset.Latest
                 };
 
+                
                 // Aaaand then return
                 return new ConsumerBuilder<Ignore, string>(config).Build();
             }
@@ -58,8 +67,12 @@ namespace VATMap_Kafka
         /// </summary>
         internal void Start ()
         {
+            // UDP
+            IPEndPoint sockEP = new IPEndPoint(IPAddress.Loopback, WEBSOCK_PORT);
+            UdpClient socket = new UdpClient(sockEP);
+
             // Consumer object
-            using var consumer = this.Consumer;
+            using var consumer = this.KafkaConsumer;
 
             // Subscribe consumer to VATSIM kafka feed
             consumer.Subscribe("datafeed");
@@ -117,7 +130,11 @@ namespace VATMap_Kafka
                             });
 
                             // Write to console
-                            Console.WriteLine(jsonPosition + "\n");                           
+                            Console.WriteLine(jsonPosition + "\n");
+
+                            // Write datagram and send
+                            byte[] bytesToSend = Encoding.ASCII.GetBytes(jsonPosition);
+                            socket.Send(bytesToSend, bytesToSend.Length, sockEP);
                         }
                         else // If not a pilot position update
                         {

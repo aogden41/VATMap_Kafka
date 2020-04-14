@@ -8,9 +8,9 @@ namespace VATMap_Kafka
     {
         static void Main(string[] args)
         {
-            Kafka kafka = new Kafka();
+            Server server = new Server();
 
-            kafka.Start();
+            server.Start();
         }
     }
 }
